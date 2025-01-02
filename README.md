@@ -13,10 +13,12 @@
 
 # Links
 
-- 📜 [Blog]()
+- 📜 [Blog](https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f)
 - 🤗 [PRIME Collection](https://huggingface.co/PRIME-RL)
 
 # Introduction
+
+![image-20241230162026156](./figures/performance.png)
 
 Advanced reasoning of large language models (LLMs), while improvable through data-driven imitation, is still clouded by serious scalability challenges. We believe the key to overcoming such challenges lies in transforming data-driven approaches into *exploration-based* methods, as exemplified by reinforcement learning (RL). To this end, two critical bottlenecks need to be alleviated to bridge this transformation: (1) how to obtain precise *reward signals* efficiently and scalably, especially for *dense* ones? (2) how can we build effective RL algorithms to fully *unleash* the potential of these signals? 
 
@@ -77,9 +79,8 @@ The final results are presented below:
 | AMC           | **57.8 (+27.7)**     | 30.1               | 50.6                          | 30.1                       | 45.8       |
 | Minerva Math  | **38.6 (+5.9)**      | 32.7               | 34.6                          | 35.3                       | 36.8       |
 | OlympiadBench | 42.1 (+12.3)         | 29.8               | 40.7                          | 31.9                       | **43.3**   |
-| Avg.          | **48.9 (+ 16.7)**    | 32.2               | 43.8                          | 36.4                       | 43.3       |
+| Avg.          | **48.9 (+16.7)**     | 32.2               | 43.8                          | 35.7                       | 43.3       |
 
-![image-20241230162026156](./figures/performance.jpg)
 
 We achieved this with only 1/10 data and model resources compared with Qwen-Math.
 |            | **Eurus-2-7B-PRIME**               | **Qwen2.5-Math-7B-Instruct**    |
@@ -88,7 +89,7 @@ We achieved this with only 1/10 data and model resources compared with Qwen-Math
 | SFT Data   | **230K (open-source)**             | 2.5M (open-source and in-house) |
 | RM Data    | **0**                              | 618K (in-house)                 |
 | RM         | **Eurus-2-7B-SFT**                 | Qwen2.5-Math-RM (72B)           |
-| RL Data    | **150K queries  \\(\times\\)4 samples** | 66K queries \\(\times\\) 32 samples |
+| RL Data    | **150K queries \times 4 samples**  | 66K queries \times 32 samples   |
 
 # Citation
 If you find PRIME or ImplicitPRM helpful, please cite us.
@@ -96,9 +97,9 @@ If you find PRIME or ImplicitPRM helpful, please cite us.
 ```
 @misc{cui2024process,
   title={Process Reinforcement through Implicit Rewards},
-  author={Ganqu Cui, Lifan Yuan, Zefan Wang, Wendi Li, Hanbin Wang, Tianyu Yu, Bingxiang He, Yuchen Fan, Qixin Xu, Weize Chen, Jiarui Yuan, Huayu Chen, Kaiyan Zhang, Xingtai Lv, Shuo Wang, Yuan Yao, Hao Peng, Yu Cheng, Zhiyuan Liu, Maosong Sun, Bowen Zhou, Ning Ding},
+  author={Ganqu Cui and Lifan Yuan and Zefan Wang and Hanbin Wang and Wendi Li and Bingxiang He and Yuchen Fan and Tianyu Yu and Qixin Xu and Weize Chen and Jiarui Yuan and Huayu Chen and Kaiyan Zhang and Xingtai Lv and Shuo Wang and Yuan Yao and Hao Peng and Yu Cheng and Zhiyuan Liu and Maosong Sun and Bowen Zhou and Ning Ding},
   year={2025},
-  howpublished={\url{}},
+  howpublished={\url{https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f}},
   note={Notion Blog}
 }
 ```
