@@ -13,6 +13,12 @@ The preprocessing pipeline employs a systematic rule-based approach to filter an
 
 We exclude problems containing figures or diagrams since they require visual processing capabilities. We also remove proof questions due to difficulties in answer verification. The remaining problems are classified into question-answering, multiple-choice, or fill-in-the-blank questions based on specific patterns. Since fill-in-the-blank questions comprise less than 400 examples compared to the much larger set of multiple-choice questions, we focus solely on multiple-choice questions for further processing.
 
+To use the code, first download [NuminaMath-CoT](https://huggingface.co/datasets/AI-MO/NuminaMath-CoT), set the dataset path in `stage1_filter.py` and then run:
+
+```shell
+python stage1_filter.py
+```
+
 ### Stage 2: Converting to Direct Question-Answer Format
 
 We transform multiple-choice questions into a direct question-answer format through three sequential stages: rule-based filtering, LLM-based filtering, and LLM-based formatting.
@@ -28,9 +34,21 @@ For questions classified as convertible, we implement a two-phase reformatting p
 
 This systematic approach maintains mathematical rigor while creating a standardized format suitable for downstream applications.
 
+To use the code, first correctly set the data path in `stage2_format_choice.py` and then run:
+
+```shell
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python stage2_format_choice.py
+```
+
 ### Stage 3: Merge
 
 we simply merge all question-answer pairs and conduct a data filtering again.
+
+To use the code, first correctly set the data path in `stage3_merge.py` and then run:
+
+```shell
+python stage3_merge.py
+```
 
 ### Stage 4: Problem and Solution Validation
 
@@ -62,3 +80,11 @@ The final dataset retains only problems that demonstrate:
 - Alignment with ground truth answers
 
 This rigorous validation process ensures the resulting dataset comprises well-defined, solvable problems with verified, accurate solutions.
+
+To use the code, first correctly set the data path in `stage4_judge.py` and then run:
+
+```shell
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python stage4_judge.py
+```
+
+You can use different models to judge the correctness by specifying the `model_path` parameter, e.g. Qwen2.5-Math-72B-Instruct and QwQ-32B-Preview.

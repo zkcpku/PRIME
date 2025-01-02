@@ -39,8 +39,8 @@ class MathProblemValidator:
         else:
             if 'gemini' in model_path:
                 self.client = OpenAI(
-                    api_key="sk-7mLpS2dSE0cVIZtg7cEa2d27B8034235Ba13E9B4B4AaCe3f",
-                    base_url="https://yeysai.com/v1",
+                    api_key="<api_key>",
+                    base_url="<base_url>",
                 )
             else:
                 self.tokenizer = AutoTokenizer.from_pretrained(model_path)
