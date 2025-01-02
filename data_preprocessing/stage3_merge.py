@@ -6,10 +6,10 @@ from IPython import embed
 from tqdm import tqdm
 
 date = "20241209"
-formatted_qa_dir = f"/home/test/test05/hbx/openRLHF_o1/data/{date}/formatted"
+formatted_qa_dir = f"{date}/formatted"
 formatted_qa_dataset = []
 
-original_qa_path = f"/home/test/test05/hbx/openRLHF_o1/data/{date}/stage1_filtered.jsonl"
+original_qa_path = f"{date}/stage1_filtered.jsonl"
 original_qa_dataset = []
 
 subsets = ["amc_aime"] # TODO

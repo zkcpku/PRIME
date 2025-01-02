@@ -59,7 +59,7 @@ from IPython import embed
 from datasets import load_from_disk
 
 date = "20241212"
-data_path = "/home/test/test05/hbx/datasets/NuminaMath-CoT" # TODO
+data_path = "path/to/NuminaMath-CoT" # TODO
 subsets = ["synthetic_math"]
 for subset in subsets: rm_stat[subset] = {}
 

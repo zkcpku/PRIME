@@ -207,9 +207,9 @@ def main():
     # TODO: CUDA_VISIBLE_DEVICES=4,5,6,7 python stage2_format_choice.py
     date = "20241212" # TODO
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_file", type=str, default=f"/home/test/test05/hbx/openRLHF_o1/data/{date}/stage1_filtered.jsonl")
-    parser.add_argument("--output_dir", type=str, default=f"/home/test/test05/hbx/openRLHF_o1/data/{date}/formatted")
-    parser.add_argument("--model_name_or_path", type=str, default="/home/test/testdata/models/Meta-Llama-3.1-8B-Instruct")
+    parser.add_argument("--input_file", type=str, default=f"{date}/stage1_filtered.jsonl")
+    parser.add_argument("--output_dir", type=str, default=f"{date}/formatted")
+    parser.add_argument("--model_name_or_path", type=str, default="path/to/Meta-Llama-3.1-8B-Instruct")
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--max_tokens", type=int, default=2048)
     parser.add_argument("--tensor_parallel_size", type=int, default=torch.cuda.device_count())

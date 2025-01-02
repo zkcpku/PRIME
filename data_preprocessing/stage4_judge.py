@@ -208,30 +208,10 @@ Analysis Required:
             return {
                 "solution": response
             }
-            try:
-                # r1, solution = response.split("SOLUTION:")
-                # _, status = r1.split("STATUS:")
-                
-                r1, status = response.split("STATUS:")
-                _, solution = r1.split("SOLUTION:")
-                
-                status = status.strip()
-                solution = solution.strip()
-            except:
-                status = "parse failed"
-                solution = "undefined"
-            
-            return {
-                "status": status,
-                "solution": solution,
-                "response": response
-            }
 
         # Process all attempts
         parsed_attempts = [extract_status_and_steps(attempt) for attempt in attempts]
-        # status_counts = Counter(attempt["status"] for attempt in parsed_attempts)
-        # majority_status = status_counts.most_common(1)[0][0]
-        # status_consistency = status_counts[majority_status] / len(attempts)
+
         
         # TODO: 对于两小问的问题，先统计数量然后去除掉
         is_matched_2, ground_truth = match_answer(ground_truth)
@@ -291,7 +271,7 @@ class DataProcessor:
             "cn_k12": [],
             "olympiads": []
         }
-        with open("/home/test/test05/hbx/openRLHF_o1/data/test_samples.json", 'r', encoding='utf-8') as f:
+        with open("path/to/test_samples.json", 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         for item in data:
@@ -331,7 +311,7 @@ class DataProcessor:
 
 def sample():
     dataset = []
-    with open("/home/test/test05/hbx/openRLHF_o1/data/final_math_qa.jsonl", 'r', encoding='utf-8') as f:
+    with open("path/to/final_math_qa.jsonl", 'r', encoding='utf-8') as f:
         for line in f:
             data = json.loads(line)
             dataset.append(data)
@@ -353,8 +333,8 @@ def main():
     parser.add_argument("--data_subset", type=str, default="olympiads") # TODO
     parser.add_argument("--use_fp8", type=bool, default=False) # TODO
     parser.add_argument("--model_path", type=str, default="gemini-2.0-flash-thinking-exp") # TODO
-    parser.add_argument("--input_file", type=str, default=f"/home/test/test05/hbx/openRLHF_o1/data/{date}/stage3_final_math_qa.jsonl")
-    parser.add_argument("--output_path", type=str, default=f"/home/test/test05/hbx/openRLHF_o1/data/{date}/stage4_judged")
+    parser.add_argument("--input_file", type=str, default=f"{date}/stage3_final_math_qa.jsonl")
+    parser.add_argument("--output_path", type=str, default=f"{date}/stage4_judged")
     parser.add_argument("--tensor_parallel_size", type=int, default=torch.cuda.device_count())
     parser.add_argument("--try_num", type=int, default=5)
     args = parser.parse_args()
