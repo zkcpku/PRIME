@@ -33,7 +33,7 @@ We then dive into RL to figure out its key algorithm designs and implementation 
 
 <img src="./figures/prm.gif" alt="prm" style="zoom: 33%;" />
 
-As shown in the animation above, in PRIME, the policy model and PRM are both initialized with the SFT model. For each RL iteration, the policy model first generates rollouts. Then, the [implicit PRM](https://arxiv.org/abs/2412.01981) and outcome verifier score the rollouts, and the implicit PRM gets updated on the rollouts with the outcome reward. Finally, the outcome reward \\(r_o\\) and process reward \\(r_p\\) are combined and used to update the policy model. 
+As shown in the animation above, in PRIME, the policy model and PRM are both initialized with the SFT model. For each RL iteration, the policy model first generates rollouts. Then, the [implicit PRM](https://arxiv.org/abs/2412.01981) and outcome verifier score the rollouts, and the implicit PRM gets updated on the rollouts with the outcome reward. Finally, the outcome reward $r_o$ and process reward $r_p$ are combined and used to update the policy model. 
 
 The PRIME implementation pseudocode is as follows:
 
@@ -41,18 +41,18 @@ The PRIME implementation pseudocode is as follows:
 
 The algorithm flow includes:
 
-1. **Prompt filtering** based on policy model performance, only preserving those on which the policy model \\(\pi_\theta\\) achieves a accuracy between 0.2 and 0.8.
-2. **Calculate implicit process reward** \\(r^t\\).
-3. **Update Implicit PRM** \\(\pi_\psi\\) based on predicted implicit process reward \\(r^t\\) and ground truth outcome label \\(r\\).
+1. **Prompt filtering** based on policy model performance, only preserving those on which the policy model $\pi_\theta$ achieves a accuracy between 0.2 and 0.8.
+2. **Calculate implicit process reward** $r^t$.
+3. **Update Implicit PRM** $\pi_\psi$ based on predicted implicit process reward $r^t$ and ground truth outcome label $r$.
 4. **Advantage estimation with RLOO.** Specifically, we first calculate the return of outcome rewards and implicit process rewards separately:
 
 - For ground truth outcome rewards, we directly adopt RLOO without any modification.
 
-- For implicit process rewards, we perform a three-step process to calculate return: (1) Use the averaged implicit process rewards to calculate the leave-one-out baseline (2) Normalize the process reward at step \\(t\\) by subtracting the baseline; (3) Calculate the discounted return for each response.
+- For implicit process rewards, we perform a three-step process to calculate return: (1) Use the averaged implicit process rewards to calculate the leave-one-out baseline (2) Normalize the process reward at step $t$ by subtracting the baseline; (3) Calculate the discounted return for each response.
 
   Finally, advantage is set to the combination of both returns. 
 
-​    5. **Update the policy** \\(\pi_\theta\\) using PPO loss for legit importance sampling.
+​    5. **Update the policy** $\pi_\theta$ using PPO loss for legit importance sampling.
 
 
 # Usage
