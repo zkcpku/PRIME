@@ -72,7 +72,7 @@ if __name__=='__main__':
                     'index': 0
                 }
             }
-
+            output_dataset.append(cur_data)
         output_dataset = Dataset.from_list(output_dataset)
 
         output_dataset.to_parquet(os.path.join(args.output, f'{split}.parquet'))

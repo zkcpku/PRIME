@@ -127,9 +127,9 @@ reward_model:
   prime_norm: none # batch_norm
   prime_model:
     input_tokenizer: ${actor_rollout_ref.model.path}
-    path: /home/wangzefan/huggingface/dpo-prm
+    path: openbmb/Eurus-7b-sft
     ref_type: freeze # policy
-    ref_path: /data/public/wangshuo/LongContext/model/meta-llama/Llama3.1-8b-instruct
+    ref_path: openbmb/Eurus-7b-sft
     external_lib: ${actor_rollout_ref.model.external_lib}
     enable_gradient_checkpointing: ${actor_rollout_ref.model.enable_gradient_checkpointing}
     fsdp_config:
