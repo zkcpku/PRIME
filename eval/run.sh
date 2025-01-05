@@ -1,8 +1,8 @@
 #!/bin/bash
-source /home/test/test05/anaconda3/etc/profile.d/conda.sh   # set to your path
+source xx/anaconda3/etc/profile.d/conda.sh   # set to your path
 MODEL_CKPT=$1
 MODEL_NAME=$(basename "$MODEL_CKPT")
-OUTPUT_DIR="/home/test/test05/whb/project/Eurus2/results2/$MODEL_NAME" # output dir
+OUTPUT_DIR="results/$MODEL_NAME" # output dir
 mkdir -p $OUTPUT_DIR
 
 
