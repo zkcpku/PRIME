@@ -89,12 +89,12 @@ We achieved this with only 1/10 data and model resources compared with Qwen-Math
 | SFT Data   | **230K (open-source)**             | 2.5M (open-source and in-house) |
 | RM Data    | **0**                              | 618K (in-house)                 |
 | RM         | **Eurus-2-7B-SFT**                 | Qwen2.5-Math-RM (72B)           |
-| RL Data    | **150K queries \times 4 samples**  | 66K queries \times 32 samples   |
+| RL Data    | **150K queries × 4 samples**  | 66K queries × 32 samples   |
 
 # Citation
 If you find PRIME or ImplicitPRM helpful, please cite us.
 
-```
+```bibtex
 @misc{cui2024process,
   title={Process Reinforcement through Implicit Rewards},
   author={Ganqu Cui and Lifan Yuan and Zefan Wang and Hanbin Wang and Wendi Li and Bingxiang He and Yuchen Fan and Tianyu Yu and Qixin Xu and Weize Chen and Jiarui Yuan and Huayu Chen and Kaiyan Zhang and Xingtai Lv and Shuo Wang and Yuan Yao and Hao Peng and Yu Cheng and Zhiyuan Liu and Maosong Sun and Bowen Zhou and Ning Ding},
@@ -104,7 +104,7 @@ If you find PRIME or ImplicitPRM helpful, please cite us.
 }
 ```
 
-```
+```bibtex
 @article{yuan2024implicitprm,
   title={Free Process Rewards without Process Labels},
   author={Lifan Yuan and Wendi Li and Huayu Chen and Ganqu Cui and Ning Ding and Kaiyan Zhang and Bowen Zhou and Zhiyuan Liu and Hao Peng},
