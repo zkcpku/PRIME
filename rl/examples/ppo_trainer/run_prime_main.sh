@@ -9,12 +9,12 @@ export TOKENIZERS_PARALLELISM=true
 PROJECT_NAME='PRIME'
 EXPERIMENT_NAME='online-before-solvable-0.2-0.8-policy-self-ref'
 DATA_PATH=path/to/data
-SFT_MODEL_PATH=path/to/sft/model
+SFT_MODEL_PATH=PRIME-RL/Eurus-2-7B-SFT
 CKPT_PATH=path/to/save/dir
 
 python3 -m verl.trainer.main_ppo \
     data.train_files=["$DATA_PATH/train.parquet"] \
-    data.val_files=["$DATA_PATH/test.parquet"] \
+    data.val_files=["$DATA_PATH/validation.parquet"] \
     data.train_batch_size=256 \
     data.val_batch_size=1024 \
     data.max_prompt_length=1024 \

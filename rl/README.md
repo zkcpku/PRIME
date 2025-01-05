@@ -1,9 +1,76 @@
 ## Reinforcement Learning
 
+We implemented our reinforcement learning algorithm extending from [veRL](https://github.com/volcengine/verl). 
 
 ### Installation 
-
+Please refer to the [veRL documentation](https://verl.readthedocs.io/en/latest/start/install.html) to solve dependencies. Only FSDP backend support is required to run our code. 
 
 ### Data Preparation
+Before starting reinforcement learning, we need to reformat the prompt dataset and make it compatible with the veRL framework. 
 
-WIP
+```bash
+python scripts/data_prepare.py --input PRIME-RL/Eurus-2-RL-Data --output /path/to/dataset
+```
+
+### Start Training
+We provide an example bash script to launch the training task. Please remember to modify the paths in the script. 
+```bash
+bash examples/ppo_trainer/run_prime_main.sh
+```
+
+### Config Explanation
+We made several vital extensions to the original training pipeline of the PPO algorithm. Here we provide explanation to configure these new features. 
+
+Please refer to [this page](https://verl.readthedocs.io/en/latest/examples/config.html) for a thorough guide of other basic training settings. 
+
+#### Prompt filtering
+During the rollout stage, we find that choosing appropriate prompts matters a lot, especially only preserving the prompts among a certain difficulty range. Inspired by [Qwen-2.5-Math](https://arxiv.org/abs/2409.12122), which filtered prompts according to the accuracy of the initial policy model beforehand, we perform online prompt filtering throughout the training. We sample multiple trajectories for each prompt, then calculate the accuracy and preserve the prompts with accuracy scores within a certain range. This also balanced the training data distribution for PRM update. 
+
+```yaml
+data:
+  n_samples: 4 
+  filter_accuracy: True
+  accuracy_lower_bound: 0.2
+  accuracy_upper_bound: 0.8
+```
+- ``data.n_samples``: Amount of trajectories for each prompt.
+- ``data.filter_accuracy``: Whether to enable prompt filtering. 
+- ``data.accuracy_lower_bound`` ``data.accuracy_upper_bound``: The range of accuracy to preserve the prompt.
+
+
+#### Implicit Process Reward
+We adopt [implicit PRM](https://arxiv.org/abs/2412.01981) which obtains dense rewards by training on the cheaper response-level labels. To train the policy model, we combine the process rewards and the ground truth outcome rewards to calculate the advantage. During reinforcement learning, the PRM is updated according to the ground truth label. 
+
+In this work, we update the implicit PRM with cross entropy(CE) loss due to memory efficiency.
+```yaml
+reward_model:
+  rm_coef: 5
+  rm_type: prime
+  prime_granularity: token
+  prime_norm: batch_norm
+  prime_model:
+    update: before
+    beta_train: 0.05
+    loss_type: ce
+```
+- ``reward_model.rm_coef``: Weight for reward model in the reward combination. 
+- ``reward_model.rm_type``: Type of reward model, ``prime`` for implicit PRM and ``value`` for normal reward models. 
+- ``reward_model.prime_granularity``: Granularity to assign reward value. If set to ``token``, every token will have a process reward. If set to ``whole``, the reward will only appear on the last token just like vanilla RLHF. 
+- ``reward_model.prime_norm``: How to normalize process reward value to stabilize training. 
+- ``reward_model.prime_model.update``: ``none`` to disable online PRM update, ``after`` to update the PRM after the policy model (Single-Forward), ``before`` to update the PRM before the policy model (Double-Forward). 
+- ``reward_model.prime_model.beta_train``: Beta value used to update the PRM. 
+- ``reward_model.prime_model.loss_type``: Loss function to update the PRM. 
+
+#### Advantage Estimation
+From pilot study, we compared different online RL algorithms and found that REINFORCE-like algorithms, despite simpler than PPO, are strong enough to produce stable results. We choose the best performing [RLOO](https://arxiv.org/abs/2402.14740) as our RL algorithm. 
+
+To extend RLOO to support process rewards and merging different reward types (ground truth and reward model), we perform Leave-One-Out separately on different rewards. We directly use the return value of RLOO as advantage. 
+```yaml
+algorithm:
+  adv_estimator: rloo
+  adv_params:
+    verifier_gamma: ${algorithm.gamma}
+    reward_model_gamma: ${algorithm.gamma}
+```
+- ``algorithm.adv_estimator``: The advantage estimator, like ``gae``,``rloo``. If the advantage does not need a value estimation model, the critic model is completely disabled during training. 
+- ``algorithm.adv_params.verifier_gamma`` ``algorithm.adv_params.reward_model_gamma``: Set separate gamma for different sources of reward
