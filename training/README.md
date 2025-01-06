@@ -5,15 +5,8 @@ We implemented our reinforcement learning algorithm extending from [veRL](https:
 ## Installation 
 Please refer to the [veRL documentation](https://verl.readthedocs.io/en/latest/start/install.html) to solve dependencies. Only FSDP backend support is required to run our code. 
 
-## Data Preparation
-Before starting reinforcement learning, we need to reformat the prompt dataset and make it compatible with the veRL framework. 
-
-```bash
-python scripts/data_prepare.py --input PRIME-RL/Eurus-2-RL-Data --output /path/to/dataset
-```
-
 ## Start Training
-We provide an example bash script to launch the training task. Please remember to modify the paths in the script. 
+We provide an example bash script to launch the training task. The prompt data can be downloaded [here](https://huggingface.co/datasets/PRIME-RL/Eurus-2-RL-Data). Please remember to modify the paths in the script. 
 ```bash
 bash examples/run_prime_main.sh
 ```
