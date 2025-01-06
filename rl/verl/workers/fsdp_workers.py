@@ -1115,7 +1115,7 @@ class PRIMERewardModelWorker(Worker):
                 data = {'reward_model/grad_norm': grad_norm.detach().item()}
                 append_to_dict(metrics, data)
 
-        # 所有方法都需要在这里计算一次dpo_acc
+        # all update strategies need to compute dpo accuracy here.
         token_level_scores = torch.cat(token_level_scores, 0)
         acc = rm_data.batch['acc']
         attention_mask = rm_data.batch['attention_mask']
@@ -1130,7 +1130,7 @@ class PRIMERewardModelWorker(Worker):
         torch.distributed.barrier()
         torch.cuda.empty_cache()
 
-        # 完成整体更新后，如果更新模式为before，那么还需要重新计算一次dpo_acc和token_level_scores
+        # Double-Forward: if update strategy is 'before', reward should be computed again.
         if self.update_dpo_type in ['before']:
             token_level_scores = []
             for micro_batch in micro_batches:
