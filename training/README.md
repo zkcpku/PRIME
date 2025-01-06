@@ -63,13 +63,13 @@ reward_model:
 - ``reward_model.rm_coef``: Weight for reward model in the reward combination. 
 - ``reward_model.rm_type``: Type of reward model, ``prime`` for implicit PRM and ``value`` for normal reward models. 
 - ``reward_model.prime_granularity``: Granularity to assign reward value. If set to ``token``, every token will have a process reward. If set to ``whole``, the reward will only appear on the last token just like vanilla RLHF. 
-- ``reward_model.prime_norm``: How to normalize process reward value to stabilize training.
+- ``reward_model.prime_norm``: How to normalize process reward value to stabilize training. Default to ``batch_norm``
 - ``reward_model.path``: Model as initialization of implicit PRM. 
 - ``reward_model.ref_type``: PRM Reference model type. ``freeze``: the reference model has frozen parameters. ``policy``: the reference model synchronizes with the policy model. 
 - ``reward_model.ref_path``: Reference model in implicit PRM. 
 - ``reward_model.prime_model.update``: ``none`` to disable online PRM update, ``after`` to update the PRM after the policy model (Single-Forward), ``before`` to update the PRM before the policy model (Double-Forward). 
 - ``reward_model.prime_model.beta_train``: Beta value used to update the PRM. 
-- ``reward_model.prime_model.loss_type``: Loss function to update the PRM. 
+- ``reward_model.prime_model.loss_type``: Loss function to update the PRM. Only ``ce`` is supported now.
 
 ### Advantage Estimation
 From pilot study, we compared different online RL algorithms and found that REINFORCE-like algorithms, despite simpler than PPO, are strong enough to produce stable results. We choose the best performing [RLOO](https://arxiv.org/abs/2402.14740) as our RL algorithm. 
