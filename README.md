@@ -18,7 +18,7 @@
 
 # Getting Started
 
-Currentlt, we provide the following code of PRIME, you can find more details in each directory.
+Currently, we provide the following code of PRIME, you can find more details in each directory.
 - ``training``: Implementation and training scripts for PRIME.
 - ``data_preprocessing``: Data preparation, especially math data for PRIME.
 - ``eval``: Evaluation scripts to reproduce PRIME results.
