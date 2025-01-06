@@ -16,6 +16,13 @@
 - 📜 [Blog](https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f)
 - 🤗 [PRIME Collection](https://huggingface.co/PRIME-RL)
 
+# Getting Started
+
+Currentlt, we provide the following code of PRIME, you find more details in each directory.
+- ``training``: Implementation and training scripts for PRIME.
+- ``data_preprocessing``: Data preparation, especially math data for PRIME.
+- ``eval``: Evaluation scripts to reproduce PRIME results.
+
 # Introduction
 
 ![image-20241230162026156](./figures/performance.png)
