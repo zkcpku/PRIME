@@ -2,28 +2,44 @@
 
 # Process Reinforcement Through Implicit Rewards
 
-<p align="center">
-    <a href="#links"> Links</a> •
-    <a href="#introduction"> Introduction</a> •
-    <a href="#evaluation">Evaluation</a>
-</p>
+[![Github](https://img.shields.io/badge/PRIME-000000?style=for-the-badge&logo=github&logoColor=000&logoColor=white)](https://github.com/PRIME-RL/PRIME)[![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)](https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f)[![Hugging Face Collection](https://img.shields.io/badge/PRIME_Collection-fcd022?style=for-the-badge&logo=huggingface&logoColor=000)](https://huggingface.co/PRIME-RL)
 
+<div align="center" style="font-family: Arial, sans-serif;">
+  <p>
+    <a href="#🎉news" style="text-decoration: none; font-weight: bold;">🎉 News</a> •
+    <a href="#🔗links" style="text-decoration: none; font-weight: bold;">🔗 Links</a> •
+    <a href="#✨getting-started" style="text-decoration: none; font-weight: bold;">✨ Getting Started</a> •
+    <a href="#📖introduction" style="text-decoration: none; font-weight: bold;">📖 Introduction</a>
+  </p>
+  <p>
+    <a href="#🔧usage" style="text-decoration: none; font-weight: bold;">🔧 Usage</a> •
+    <a href="#📃evaluation" style="text-decoration: none; font-weight: bold;">📃 Evaluation</a> •
+    <a href="#🎈citation" style="text-decoration: none; font-weight: bold;">🎈 Citation</a> •
+    <a href="#📈star-history" style="text-decoration: none; font-weight: bold;">📈 Star History</a>
+  </p>
+</div>
 
 </div>
 
-# Links
+
+# 🎉News
+
+- **[2025/01/06]** We release the training/eval/data_preprocessing code. Enjoy! We are working on the paper and will release it very soon.
+- **[2025/01/02]** We present **PRIME** (Process Reinforcement through IMplicit REwards), an open-source solution for online RL with process rewards, to advance reasoning abilities of language models beyond imitation or distillation. All models and data released through [HuggingFace](https://huggingface.co/PRIME-RL).
+
+# 🔗Links
 
 - 📜 [Blog](https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f)
 - 🤗 [PRIME Collection](https://huggingface.co/PRIME-RL)
 
-# Getting Started
+# ✨Getting Started
 
 Currently, we provide the following code of PRIME, you can find more details in each directory.
 - ``training``: Implementation and training scripts for PRIME.
 - ``data_preprocessing``: Data preparation, especially math data for PRIME.
 - ``eval``: Evaluation scripts to reproduce PRIME results.
 
-# Introduction
+# 📖Introduction
 
 ![image-20241230162026156](./figures/performance.png)
 
@@ -62,13 +78,10 @@ The algorithm flow includes:
 ​    5. **Update the policy** $\pi_\theta$ using PPO loss for legit importance sampling.
 
 
-# Usage
+# 🔧Usage
 We apply tailored prompts for coding and math task:
-**System Prompt**
-```
-\nWhen tackling complex reasoning tasks, you have access to the following actions. Use them as needed to progress through your thought process.\n\n[ASSESS]\n\n[ADVANCE]\n\n[VERIFY]\n\n[SIMPLIFY]\n\n[SYNTHESIZE]\n\n[PIVOT]\n\n[OUTPUT]\n\nYou should strictly follow the format below:\n\n[ACTION NAME]\n\n# Your action step 1\n\n# Your action step 2\n\n# Your action step 3\n\n...\n\nNext action: [NEXT ACTION NAME]\n
-```
 **Coding**
+
 ```
 {question} + "\n\nWrite Python code to solve the problem. Present the code in \n```python\nYour code\n```\nat the end.
 ```
@@ -76,7 +89,59 @@ We apply tailored prompts for coding and math task:
 ```
 {question} + "\n\nPresent the answer in LaTex format: \\boxed{Your answer}"
 ```
-# Evaluation
+<details> 
+<summary>Click to view inference code.</summary>
+
+
+```python
+import os
+from tqdm import tqdm
+import torch
+from transformers import AutoTokenizer
+from vllm import LLM, SamplingParams
+os.environ["NCCL_IGNORE_DISABLED_P2P"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "true"
+def generate(question_list,model_path):
+    llm = LLM(
+        model=model_path,
+        trust_remote_code=True,
+        tensor_parallel_size=torch.cuda.device_count(),
+        gpu_memory_utilization=0.90,
+    )
+    sampling_params = SamplingParams(max_tokens=8192,
+                                    temperature=0.0,
+                                    n=1)
+    outputs = llm.generate(question_list, sampling_params, use_tqdm=True)
+    completions = [[output.text for output in output_item.outputs] for output_item in outputs]
+    return completions
+def make_conv_hf(question, tokenizer):
+    # for math problem
+    content = question + "\n\nPresent the answer in LaTex format: \\boxed{Your answer}"
+    # for code problem
+    # content = question + "\n\nWrite Python code to solve the problem. Present the code in \n```python\nYour code\n```\nat the end." 
+    msg = [
+        {"role": "user", "content": content}
+    ]
+    chat = tokenizer.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+    return chat
+    
+def run():
+    model_path = "PRIME-RL/Eurus-2-7B-PRIME"
+    all_problems = [
+        "which number is larger? 9.11 or 9.9?"
+    ]
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    completions = generate([make_conv_hf(problem_data, tokenizer) for problem_data in all_problems],model_path)
+    print(completions)
+    # [['[ASSESS]\n\n# The problem asks us to compare two decimal numbers, 9.11 and 9.9, to determine which one is larger.\n# We need to compare the whole parts and the decimal parts of the numbers.\n\nNext action: [ADVANCE]\n\n# Compare the whole parts of the numbers: both 9.11 and 9.9 have the same whole part, which is 9.\n# Compare the decimal parts of the numbers: 0.11 (from 9.11) is less than 0.9 (from 9.9).\n\nNext action: [ADVANCE]\n\n# Since the whole parts are the same and the decimal part of 9.9 is greater than the decimal part of 9.11, we can conclude that 9.9 is larger than 9.11.\n\nNext action: [OUTPUT]\n\nThe final answer is $\\boxed{9.9}$.\n\n']]
+if __name__ == "__main__":
+    run()
+```
+
+</details> 
+
+# 📃Evaluation
+
 Through PRIME, we successfully achieve substantial improvements on key reasoning benchmarks over our SFT version of the model, leading to **16.7%** improvement on average, and over **20%** on AMC&AIME competitions. Our final model Eurus-2-7B-PRIME, based on Qwen-2.5-Math-7B-Base, surpassed its instruct version on 5 key reasoning benchmarks. 
 The final results are presented below:
 |               | **Eurus-2-7B-PRIME** | **Eurus-2-7B-SFT** | **Qwen-2.5-Math-7B-Instruct** | **Llama-3.1-70B-Instruct** | **GPT-4o** |
@@ -98,7 +163,7 @@ We achieved this with only 1/10 data and model resources compared with Qwen-Math
 | RM         | **Eurus-2-7B-SFT**                 | Qwen2.5-Math-RM (72B)           |
 | RL Data    | **150K queries × 4 samples**  | 66K queries × 32 samples   |
 
-# Citation
+# 🎈Citation
 If you find PRIME or ImplicitPRM helpful, please cite us.
 
 ```bibtex
@@ -119,3 +184,7 @@ If you find PRIME or ImplicitPRM helpful, please cite us.
   year={2024}
 }
 ```
+
+# 📈Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=PRIME-RL/PRIME&type=Date)](https://star-history.com/#PRIME-RL/PRIME&Date)
