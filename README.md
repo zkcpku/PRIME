@@ -15,6 +15,7 @@
     <a href="#🔧usage" style="text-decoration: none; font-weight: bold;">🔧 Usage</a> •
     <a href="#📃evaluation" style="text-decoration: none; font-weight: bold;">📃 Evaluation</a> •
     <a href="#🎈citation" style="text-decoration: none; font-weight: bold;">🎈 Citation</a> •
+    <a href="#🌻acknowledgement" style="text-decoration: none; font-weight: bold;">🌻 Acknowledgement</a> •
     <a href="#📈star-history" style="text-decoration: none; font-weight: bold;">📈 Star History</a>
   </p>
 </div>
@@ -186,6 +187,8 @@ If you find PRIME or ImplicitPRM helpful, please cite us.
   year={2024}
 }
 ```
+# 🌻Acknowledgement
+We implement our reinforcement learning algorithm extending from [veRL](https://github.com/volcengine/verl). We utilize [vLLM](https://github.com/vllm-project/vllm) for inference and develop evaluation scripts based on [Eurus](https://github.com/OpenBMB/Eurus), [Qwen2.5-Math](https://github.com/QwenLM/Qwen2.5-Math), and [LiveCodeBench](https://github.com/LiveCodeBench/LiveCodeBench). Our data sources mainly include [NuminaMath](https://huggingface.co/datasets/AI-MO/NuminaMath-CoT), [APPS](https://huggingface.co/datasets/codeparrot/apps), [CodeContests](https://huggingface.co/datasets/deepmind/code_contests), [TACO](https://huggingface.co/datasets/BAAI/TACO), and [Codeforces](https://huggingface.co/datasets/MatrixStudio/Codeforces-Python-Submissions). Thanks for their great contributions!
 
 # 📈Star History
 
