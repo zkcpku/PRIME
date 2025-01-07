@@ -38,6 +38,7 @@ Currently, we provide the following code of PRIME, you can find more details in 
 - ``training``: Implementation and training scripts for PRIME.
 - ``data_preprocessing``: Data preparation, especially math data for PRIME.
 - ``eval``: Evaluation scripts to reproduce PRIME results.
+- For Implicit PRM training and eval, please refer to [this repo](https://github.com/PRIME-RL/ImplicitPRM).
 
 # 📖Introduction
 
