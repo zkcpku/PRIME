@@ -2,7 +2,7 @@
 
 # Process Reinforcement Through Implicit Rewards
 
-[![Github](https://img.shields.io/badge/PRIME-000000?style=for-the-badge&logo=github&logoColor=000&logoColor=white)](https://github.com/PRIME-RL/PRIME)[![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)](https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f)[![Hugging Face Collection](https://img.shields.io/badge/PRIME_Collection-fcd022?style=for-the-badge&logo=huggingface&logoColor=000)](https://huggingface.co/PRIME-RL)
+[![Github](https://img.shields.io/badge/PRIME-000000?style=for-the-badge&logo=github&logoColor=000&logoColor=white)](https://github.com/PRIME-RL/PRIME)  [![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)](https://curvy-check-498.notion.site/Process-Reinforcement-through-Implicit-Rewards-15f4fcb9c42180f1b498cc9b2eaf896f)  [![Hugging Face Collection](https://img.shields.io/badge/PRIME_Collection-fcd022?style=for-the-badge&logo=huggingface&logoColor=000)](https://huggingface.co/PRIME-RL)
 
 <div align="center" style="font-family: Arial, sans-serif;">
   <p>
@@ -80,6 +80,7 @@ The algorithm flow includes:
 
 # 🔧Usage
 We apply tailored prompts for coding and math task:
+
 **Coding**
 
 ```
