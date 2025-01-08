@@ -7,6 +7,17 @@ Please refer to the [veRL documentation](https://verl.readthedocs.io/en/latest/s
 
 ## Start Training
 We provide an example bash script to launch the training task. The prompt data can be downloaded [here](https://huggingface.co/datasets/PRIME-RL/Eurus-2-RL-Data). Please remember to modify the paths in the script. 
+
+It is needed to change the directories in `examples/run_prime_main.sh`
+
+```bash
+PROJECT_NAME='PRIME'
+EXPERIMENT_NAME='online-after-solvable-0.2-0.8-policy-self-ref'
+DATA_PATH=path/to/data
+SFT_MODEL_PATH=PRIME-RL/Eurus-2-7B-SFT
+CKPT_PATH=path/to/save/dir
+```
+Then you can run
 ```bash
 bash examples/run_prime_main.sh
 ```
