@@ -54,6 +54,7 @@ python3 -m verl.trainer.main_ppo \
     data.filter_accuracy=True \
     data.accuracy_lower_bound=0.2 \
     data.accuracy_upper_bound=0.8 \
+    algorithm.adv_estimator=rloo \
     algorithm.adv_params.verifier_gamma=1.0 \
     algorithm.adv_params.reward_model_gamma=1.0 \
     reward_model.rm_type=prime \
