@@ -271,7 +271,6 @@ def compute_dpo_accuracy(token_level_scores, acc, eos_mask, n_samples):
     dpo_acc=[]
     for start_id in range(0, token_level_scores.shape[0], n_samples):
         cur_scores=(token_level_scores[start_id:start_id+n_samples]*eos_mask[start_id:start_id+n_samples]).sum(dim=1)
-        # 求acc枚举所有样本，按照acc差值加权平均，权重全为0则设为0.5
         def get_upper_triangle(tensor_x):
             diff_matrix = tensor_x.unsqueeze(1)-tensor_x.unsqueeze(0)
             upper_tri_indices=torch.triu(torch.ones_like(diff_matrix).bool(), diagonal=1)

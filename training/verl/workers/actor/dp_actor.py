@@ -14,7 +14,7 @@
 """
 Single Process Actor
 """
-from typing import Iterable
+from typing import Iterable, Tuple
 
 import torch
 from torch import nn
@@ -24,10 +24,11 @@ from verl import DataProto
 from verl.trainer.ppo import core_algos
 from verl.workers.actor import BasePPOActor
 from verl.utils.py_functional import append_to_dict
-from verl.utils.torch_functional import logprobs_from_logits
+from verl.utils.torch_functional import logprobs_from_logits, log_probs_from_logits_all_rmpad
+from verl.models.registry import check_model_support_rmpad
+from flash_attn.bert_padding import pad_input, unpad_input, rearrange, index_first_axis
 
 __all__ = ['DataParallelPPOActor']
-
 
 class DataParallelPPOActor(BasePPOActor):
 
@@ -41,17 +42,50 @@ class DataParallelPPOActor(BasePPOActor):
         super().__init__(config)
         self.actor_module = actor_module
         self.actor_optimizer = actor_optimizer
+        self.use_remove_padding = self.config.get('use_remove_padding', False)
+        if self.use_remove_padding:
+            check_model_support_rmpad(self.config.model_type)
+        print(f'Actor use_remove_padding={self.use_remove_padding}')
+        
 
-    def _forward_micro_batch(self, micro_batch, temperature):
+    def _forward_micro_batch(self, micro_batch, temperature) -> Tuple[torch.Tensor, torch.Tensor]:
         response_length = micro_batch['responses'].size(-1)
         with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
-            output = self.actor_module(input_ids=micro_batch['input_ids'],
-                                       attention_mask=micro_batch['attention_mask'],
-                                       position_ids=micro_batch['position_ids'],
-                                       use_cache=False)  # prevent model thinks we are generating
-            logits = output.logits / temperature
-            logits = logits[:, -response_length - 1:-1]
-            log_probs = logprobs_from_logits(logits, micro_batch['responses'])
+            input_ids = micro_batch['input_ids']
+            batch_size, seqlen = input_ids.shape
+            attention_mask = micro_batch['attention_mask']
+            position_ids = micro_batch['position_ids']
+            if self.use_remove_padding:
+                input_ids_rmpad, indices, cu_seqlens, max_seqlen_in_batch = unpad_input(
+                    input_ids.unsqueeze(-1), attention_mask)  # input_ids_rmpad (total_nnz, ...)
+                input_ids_rmpad = input_ids_rmpad.transpose(0, 1)  # (1, total_nnz)
+
+                # unpad the position_ids to align the rotary
+                position_ids_rmpad = index_first_axis(rearrange(position_ids.unsqueeze(-1), "b s ... -> (b s) ..."),
+                                                      indices).transpose(0, 1)
+                # only pass input_ids and position_ids to enable flash_attn_varlen
+                output = self.actor_module(input_ids=input_ids_rmpad,
+                                           attention_mask=None,
+                                           position_ids=position_ids_rmpad,
+                                           use_cache=False)  # prevent model thinks we are generating
+                logits_rmpad = output.logits.squeeze(0)  # (total_nnz, vocab_size)
+                logits_rmpad /= temperature
+                log_probs = log_probs_from_logits_all_rmpad(input_ids_rmpad=input_ids_rmpad,
+                                                            logits_rmpad=logits_rmpad,
+                                                            indices=indices,
+                                                            batch_size=batch_size,
+                                                            seqlen=seqlen,
+                                                            response_length=response_length)  # (batch, seqlen)
+                logits = logits_rmpad
+            else:
+                output = self.actor_module(input_ids=input_ids,
+                                           attention_mask=attention_mask,
+                                           position_ids=position_ids,
+                                           use_cache=False)  # prevent model thinks we are generating
+                logits = output.logits / temperature
+                logits = logits[:, -response_length - 1:-1]
+                log_probs = logprobs_from_logits(logits, micro_batch['responses'])
+            
             return logits, log_probs
 
     def _make_minibatch_iterator(self, data: DataProto) -> Iterable[DataProto]:
@@ -118,10 +152,13 @@ class DataParallelPPOActor(BasePPOActor):
         temperature = data.meta_info['temperature']  # temperature must be in the data.meta_info to avoid slient error
 
         dataloader = self._make_minibatch_iterator(data=data)
+        clip_ratio = self.config.clip_ratio
+        entropy_coeff = self.config.entropy_coeff
 
         metrics = {}
         for batch_idx, data in enumerate(dataloader):
             # split batch into micro_batches
+            # batch = data.batch#.cuda()
             micro_batches = data.batch.split(self.config.ppo_micro_batch_size)
 
             self.actor_optimizer.zero_grad()
@@ -134,9 +171,6 @@ class DataParallelPPOActor(BasePPOActor):
                 response_mask = attention_mask[:, -response_length:]
                 old_log_prob = data['old_log_probs']
                 advantages = data['advantages']
-
-                clip_ratio = self.config.clip_ratio
-                entropy_coeff = self.config.entropy_coeff
 
                 logits, log_prob = self._forward_micro_batch(micro_batch=data, temperature=temperature)
 
@@ -152,18 +186,17 @@ class DataParallelPPOActor(BasePPOActor):
                 loss = policy_loss / self.gradient_accumulation
                 loss.backward()
 
-                data = {
-                    'actor/entropy_loss': entropy_loss.detach().item(),
-                    'actor/pg_loss': pg_loss.detach().item(),
-                    'actor/pg_clipfrac': pg_clipfrac.detach().item(),
-                    'actor/ppo_kl': ppo_kl.detach().item(),
-                }
-                append_to_dict(metrics, data)
+            data = {
+                # 'actor/entropy_loss': entropy_loss.detach().item(),
+                'actor/pg_loss': pg_loss.detach().item(),
+                'actor/pg_clipfrac': pg_clipfrac.detach().item(),
+                'actor/ppo_kl': ppo_kl.detach().item(),
+            }
+            append_to_dict(metrics, data)
 
             grad_norm = self._optimizer_step()
             data = {'actor/grad_norm': grad_norm.detach().item()}
             append_to_dict(metrics, data)
         self.actor_optimizer.zero_grad()
-        torch.cuda.synchronize()
-        torch.distributed.barrier()
+        torch.cuda.empty_cache()
         return metrics
