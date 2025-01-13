@@ -21,6 +21,7 @@ actor_rollout_ref:
     path: ~/models/deepseek-llm-7b-chat
     external_lib: null
     override_config: {}
+    use_remove_padding: False
     enable_gradient_checkpointing: False
   actor:
     strategy: fsdp  # This is for backward-compatibility
@@ -132,6 +133,7 @@ reward_model:
     ref_path: openbmb/Eurus-7b-sft
     external_lib: ${actor_rollout_ref.model.external_lib}
     enable_gradient_checkpointing: ${actor_rollout_ref.model.enable_gradient_checkpointing}
+    use_remove_padding: False
     fsdp_config:
       wrap_policy:
         min_num_params: 0
