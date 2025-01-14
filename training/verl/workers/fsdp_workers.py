@@ -118,8 +118,9 @@ class ActorRolloutRefWorker(Worker):
 
         # override model kwargs
         actor_model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code)
-        with open_dict(self.config):
-            self.config.model_type = actor_model_config.model_type
+        if self.config.model.use_remove_padding:
+            from verl.models.registry import check_model_support_rmpad
+            check_model_support_rmpad(actor_model_config.model_type)
         override_config_kwargs = {
             'bos_token_id': self.tokenizer.bos_token_id,
             'eos_token_id': self.tokenizer.eos_token_id,
@@ -862,8 +863,9 @@ class PRIMERewardModelWorker(Worker):
         trust_remote_code = config.prime_model.get('trust_remote_code', False)
         model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code)
         # note that we have to create model in fp32. Otherwise, the optimizer is in bf16, which is incorrect
-        with open_dict(self.config):
-            self.config.model_type = model_config.model_type
+        if config.prime_model.use_remove_padding:
+            from verl.models.registry import check_model_support_rmpad
+            check_model_support_rmpad(model_config.model_type)
         init_context = get_init_weight_context_manager(use_meta_tensor=not model_config.tie_word_embeddings)
 
         with init_context(), warnings.catch_warnings():

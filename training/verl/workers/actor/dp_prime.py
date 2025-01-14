@@ -51,8 +51,6 @@ class DataParallelPRIME(BasePPOActor):
         self.reward_optimizer = reward_optimizer
         self.prime_loss_fn = PRIME_LOSS[prime_loss_fn]
         self.use_remove_padding = self.config.prime_model.get('use_remove_padding', False)
-        if self.use_remove_padding:
-            check_model_support_rmpad(self.config.model_type)
         print(f'PRM use_remove_padding={self.use_remove_padding}')
 
     def _make_minibatch_iterator(self, data: DataProto) -> Iterable[DataProto]:
