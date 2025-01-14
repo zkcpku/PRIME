@@ -27,6 +27,7 @@ actor_rollout_ref:
     strategy: fsdp  # This is for backward-compatibility
     ppo_mini_batch_size: 256
     ppo_micro_batch_size: 64
+    use_remove_padding: ${actor_rollout_ref.model.use_remove_padding}
     grad_clip: 1.0
     clip_ratio: 0.2
     entropy_coeff: 0.001
@@ -46,6 +47,7 @@ actor_rollout_ref:
       grad_offload: False
       optimizer_offload: False
   ref:
+    use_remove_padding: ${actor_rollout_ref.model.use_remove_padding}
     fsdp_config:
       param_offload: False
       wrap_policy:

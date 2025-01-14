@@ -43,8 +43,6 @@ class DataParallelPPOActor(BasePPOActor):
         self.actor_module = actor_module
         self.actor_optimizer = actor_optimizer
         self.use_remove_padding = self.config.get('use_remove_padding', False)
-        if self.use_remove_padding:
-            check_model_support_rmpad(self.config.model_type)
         print(f'Actor use_remove_padding={self.use_remove_padding}')
         
 
@@ -180,7 +178,16 @@ class DataParallelPPOActor(BasePPOActor):
                                                                               eos_mask=response_mask,
                                                                               cliprange=clip_ratio)
 
-                entropy_loss = core_algos.compute_entropy_loss(logits, response_mask)
+                # compute entropy loss
+                if self.use_remove_padding:
+                    full_response_mask = attention_mask.clone()
+                    full_response_mask[:, :-response_length] = 0  # set the prompt part to zero
+                    full_response_mask_rmpad, *_ = unpad_input(full_response_mask.unsqueeze(-1),
+                                                               attention_mask=attention_mask)
+                    full_response_mask_rmpad = full_response_mask_rmpad.squeeze(-1)  # (total_nnz)
+                    entropy_loss = core_algos.compute_entropy_loss(logits, full_response_mask_rmpad)  # (total_nnz,)
+                else:
+                    entropy_loss = core_algos.compute_entropy_loss(logits, response_mask)
                 policy_loss = pg_loss - entropy_loss * entropy_coeff
 
                 loss = policy_loss / self.gradient_accumulation
