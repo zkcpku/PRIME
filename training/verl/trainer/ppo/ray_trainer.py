@@ -231,7 +231,7 @@ class RayPRIMETrainer(object):
 
         self.role_worker_mapping = role_worker_mapping
         self.resource_pool_manager = resource_pool_manager
-        self.use_reference_policy = Role.RefPolicy in role_worker_mapping
+        self.use_reference_policy = Role.RefPolicy in role_worker_mapping and config.algorithm.kl_ctrl.kl_coef > 0
         self.use_rm = Role.RewardModel in role_worker_mapping
         self.ray_worker_group_cls = ray_worker_group_cls
 
@@ -586,11 +586,13 @@ class RayPRIMETrainer(object):
                     metrics.update(val_metrics)
 
                 # collect metrics
-                data_metrics = compute_data_metrics(batch=batch)
-                metrics.update(data_metrics)
-
-                # TODO: make a canonical logger that supports various backend
-                logger.log(data=metrics, step=global_steps)
+                with Timer(name='logging1', text="{name}: {seconds:.1f} seconds") as timer:
+                    data_metrics = compute_data_metrics(batch=batch)
+                with Timer(name='logging2', text="{name}: {seconds:.1f} seconds") as timer:
+                    metrics.update(data_metrics)
+                with Timer(name='logging3', text="{name}: {seconds:.1f} seconds") as timer:
+                    # TODO: make a canonical logger that supports various backend
+                    logger.log(data=metrics, step=global_steps)
 
                 if self.config.trainer.save_freq > 0 and (global_steps + 1) % self.config.trainer.save_freq == 0:
                     actor_local_path = os.path.join(self.config.trainer.default_local_dir, 'actor',
@@ -961,11 +963,13 @@ class RayPPOTrainer(object):
                     metrics.update(val_metrics)
 
                 # collect metrics
-                data_metrics = compute_data_metrics(batch=batch)
-                metrics.update(data_metrics)
-
-                # TODO: make a canonical logger that supports various backend
-                logger.log(data=metrics, step=global_steps)
+                with Timer(name='logging1', text="{name}: {seconds:.1f} seconds") as timer:
+                    data_metrics = compute_data_metrics(batch=batch)
+                with Timer(name='logging2', text="{name}: {seconds:.1f} seconds") as timer:
+                    metrics.update(data_metrics)
+                with Timer(name='logging3', text="{name}: {seconds:.1f} seconds") as timer:
+                    # TODO: make a canonical logger that supports various backend
+                    logger.log(data=metrics, step=global_steps)
 
                 if self.config.trainer.save_freq > 0 and (global_steps + 1) % self.config.trainer.save_freq == 0:
                     actor_local_path = os.path.join(self.config.trainer.default_local_dir, 'actor',
