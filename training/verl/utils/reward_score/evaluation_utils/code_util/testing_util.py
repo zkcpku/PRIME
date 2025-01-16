@@ -18,7 +18,7 @@ from io import StringIO
 # used for testing the code that reads from input
 from unittest.mock import patch, mock_open
 
-from pyext import RuntimeModule
+# from pyext import RuntimeModule
 
 from enum import Enum
 
